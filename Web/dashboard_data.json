@@ -1,0 +1,59 @@
+{
+    "summary": {
+        "total_fans": "Error",
+        "total_views": "0",
+        "total_videos": 0,
+        "last_month_views": "0",
+        "last_month_views_change": "N/A",
+        "last_month_videos": 0,
+        "last_month_videos_change": "N/A"
+    },
+    "trend_chart": {
+        "labels": [],
+        "datasets": [
+            {
+                "label": "累计视频发布数",
+                "data": []
+            },
+            {
+                "label": "累计播放量",
+                "data": []
+            },
+            {
+                "label": "每月视频发布数",
+                "data": []
+            },
+            {
+                "label": "每月播放量",
+                "data": []
+            }
+        ]
+    },
+    "follower_chart": {
+        "labels": [
+            "2022年",
+            "2023年",
+            "2024年",
+            "2025年"
+        ],
+        "datasets": [
+            {
+                "label": "B站粉丝数量",
+                "data": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    "additional_stats": {
+        "videos_published_1": 0,
+        "views_total_1": "0",
+        "videos_published_2": "N/A",
+        "views_total_2": "N/A",
+        "average_views": 0,
+        "average_views_change_monthly": "N/A"
+    }
+}

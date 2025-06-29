@@ -5,7 +5,7 @@ plugins:
   # - "bilibili_fetcher" # 比如这样 代表不加载Bilibili Fetcher插件
   # Bilibili Fetcher 插件的特定配置
   bilibili_fetcher:
-    uid: "12345678" # 在这里替换成你要获取的B站用户的UID
+    uid: "1492647738" # 在这里替换成你要获取的B站用户的UID
 
 # 输出设置
 output:

@@ -30,7 +30,7 @@ function detectSystemTheme() {
   });
 }
 
-function drawLineChart(canvas, data) {
+function drawLineChart(canvas, data, monthlyDetails = {}) {
   if (trendChartInstance) trendChartInstance.destroy();
   const ctx = canvas.getContext("2d");
 
@@ -38,7 +38,7 @@ function drawLineChart(canvas, data) {
     (ds) =>
       ds.label.includes("累计播放量") ||
       ds.label.includes("每月播放量") ||
-      ds.label.includes("累计节目发布数") ||
+      ds.label.includes("累计视频发布数") ||
       ds.label.includes("累计点赞量")
   );
 
@@ -83,7 +83,7 @@ function drawLineChart(canvas, data) {
         };
       }),
     },
-    options: getChartOptionsWithClick(true),
+    options: getChartOptionsWithClick(true, monthlyDetails),
   });
 }
 
@@ -106,7 +106,7 @@ function formatLargeNumber(num) {
   return num.toLocaleString();
 }
 
-function getChartOptions(enableYCallback = false) {
+function getChartOptions(enableYCallback = false, monthlyDetails = {}) {
   const textColor = isDarkTheme ? "#d1d5db" : "#374151";
   const gridColor = isDarkTheme ? "#374151" : "#e5e7eb";
   const options = {
@@ -131,6 +131,7 @@ function getChartOptions(enableYCallback = false) {
         borderWidth: 2,
         displayColors: false,
         padding: 12,
+        enabled: true,
         callbacks: {
           title: (context) => `${context[0].label} 月份数据`,
           label: (context) => {
@@ -141,7 +142,35 @@ function getChartOptions(enableYCallback = false) {
             }
             return label;
           },
+          afterLabel: (context) => {
+            const datasetLabel = context.dataset.label;
+            if (datasetLabel.includes("累计")) {
+                return [];
+            }
+
+            const [year, month] = context.label.split('.').map(Number);
+            const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+            const details = monthlyDetails[monthKey];
+            if (!details) return [];
+
+            let changeKey;
+            if (datasetLabel.includes("播放量")) changeKey = 'views_change';
+            else if (datasetLabel.includes("视频发布数")) changeKey = 'videos_change';
+            else if (datasetLabel.includes("点赞量")) changeKey = 'likes_change';
+
+            if (changeKey && details[changeKey] && details[changeKey] !== "N/A") {
+                const change = details[changeKey];
+                const isNegative = change.startsWith('-');
+                const symbol = isNegative ? '🔻' : '🔺';
+                return [`${symbol} 月度变化: ${change}`];
+            }
+            return [];
+          }
         },
+        bodyFont: {
+            size: 14,
+        },
+        bodySpacing: 4
       },
     },
     scales: {
@@ -162,8 +191,8 @@ function getChartOptions(enableYCallback = false) {
   return options;
 }
 
-function getChartOptionsWithClick(enableYCallback = false) {
-  const options = getChartOptions(enableYCallback);
+function getChartOptionsWithClick(enableYCallback = false, monthlyDetails = {}) {
+  const options = getChartOptions(enableYCallback, monthlyDetails);
   options.onClick = (event, elements) => {
     if (elements.length > 0) {
       const dataIndex = elements[0].index;
@@ -275,13 +304,13 @@ function showMonthlyVideoDetails(month) {
   }
 }
 
-function updateChartsTheme() {
+function updateChartsTheme(monthlyDetails = {}) {
   if (trendChartInstance) {
-    Object.assign(trendChartInstance.options, getChartOptionsWithClick(true));
+    Object.assign(trendChartInstance.options, getChartOptionsWithClick(true, monthlyDetails));
     trendChartInstance.update();
   }
   if (followerChartInstance) {
-    Object.assign(followerChartInstance.options, getChartOptions(false));
+    Object.assign(followerChartInstance.options, getChartOptions(false, monthlyDetails));
     followerChartInstance.update();
   }
 }
@@ -294,6 +323,7 @@ async function loadDashboardData() {
 
     allVideosData = data.all_videos || [];
     allDanmakus = data.all_danmakus || [];
+    const monthlyDetails = data.monthly_details || {};
 
     document.querySelectorAll(".stat-card").forEach((card) => {
       const titleElement = card.querySelector(".stat-title");
@@ -332,9 +362,10 @@ async function loadDashboardData() {
     });
 
     updateFollowerChartTitle(data.summary.total_fans);
-    initCharts(data.trend_chart, data.follower_chart);
+    initCharts(data.trend_chart, data.follower_chart, monthlyDetails);
     renderVideoPerformanceList(data.video_performance);
     initDanmaku();
+    updateChartsTheme(monthlyDetails);
   } catch (error) {
     console.error("无法加载仪表板数据:", error);
     document.querySelector(".dashboard-container").innerHTML =
@@ -347,10 +378,10 @@ function updateFollowerChartTitle(followerCount) {
   if (followerElement) followerElement.textContent = followerCount;
 }
 
-function initCharts(trendData, followerData) {
+function initCharts(trendData, followerData, monthlyDetails = {}) {
   const trendCanvas = document.getElementById("trendChart");
   if (trendCanvas && trendData) {
-    drawLineChart(trendCanvas, trendData);
+    drawLineChart(trendCanvas, trendData, monthlyDetails);
   }
 
   const followerCanvas = document.getElementById("followerChart");

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import asyncio
 import yaml
 import os
@@ -90,6 +91,35 @@ def summarize_data_for_dashboard(excel_dir, web_data_path, all_plugin_data):
             continue
 
     sorted_months = sorted(monthly_stats.keys())
+
+    # 计算月度变化
+    for i, month_key in enumerate(sorted_months):
+        stats = monthly_stats[month_key]
+        if i > 0:
+            prev_stats = monthly_stats[sorted_months[i-1]]
+            
+            # 播放量变化
+            if prev_stats['views'] > 0:
+                views_change = (stats['views'] - prev_stats['views']) / prev_stats['views'] * 100
+                stats['views_change'] = f"{views_change:+.1f}%"
+            else:
+                stats['views_change'] = "N/A"
+            
+            # 视频数变化
+            videos_change = stats['videos'] - prev_stats['videos']
+            stats['videos_change'] = f"{videos_change:+}" if videos_change != 0 else "持平"
+
+            # 点赞量变化
+            if prev_stats['likes'] > 0:
+                likes_change = (stats['likes'] - prev_stats['likes']) / prev_stats['likes'] * 100
+                stats['likes_change'] = f"{likes_change:+.1f}%"
+            else:
+                stats['likes_change'] = "N/A"
+        else:
+            stats['views_change'] = "N/A"
+            stats['videos_change'] = "N/A"
+            stats['likes_change'] = "N/A"
+
     print(f"按月统计结果: {monthly_stats}")
     
     # 改进标签格式，包含年份信息
@@ -221,6 +251,7 @@ def summarize_data_for_dashboard(excel_dir, web_data_path, all_plugin_data):
             ]
         },
         "video_performance": video_performance,
+        "monthly_details": monthly_stats,
         "follower_chart": {
             "labels": ["2022年", "2023年", "2024年", "2025年"],
             "datasets": [ {

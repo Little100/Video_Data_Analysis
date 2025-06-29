@@ -664,7 +664,6 @@ body::before {
   min-width: 80px;
 }
 
-/* 响应式设计 */
 @media (max-width: 1024px) {
   .charts-grid {
     grid-template-columns: 1fr;
@@ -873,4 +872,39 @@ body::before {
   to {
     transform: translateX(-2500px);
   }
+}
+
+#chartjs-tooltip {
+    opacity: 1;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    border-radius: 8px;
+    padding: 12px;
+    pointer-events: none;
+    transition: all .1s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border: 2px solid var(--orange);
+}
+
+#chartjs-tooltip table {
+    margin: 0;
+    border-collapse: collapse;
+}
+
+#chartjs-tooltip th, #chartjs-tooltip td {
+    border: 0;
+    padding: 4px 8px;
+    text-align: left;
+}
+
+#chartjs-tooltip th {
+    font-weight: bold;
+    font-size: 1.1em;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+#chartjs-tooltip td {
+    font-size: 1em;
 }
